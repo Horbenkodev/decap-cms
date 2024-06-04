@@ -1,0 +1,171 @@
+local_backend: true
+
+backend:
+  name: git-gateway
+  branch: main
+  squash_merges: true
+
+media_folder: "static/img"
+public_folder: "img"
+
+publish_mode: editorial_workflow
+
+collections:
+  - name: "posts"
+    label: "Posts"
+    label_singular: "Post"
+    folder: "content/posts"
+    path: "{{slug}}/index"
+    summary: "{{draft | ternary('✍️ Draft  ','')}} {{draft | ternary('|','')}} {{top | ternary('🔥 Top | ','')}} {{promote.promote | ternary('⭐ Promote | ','')}} {{title}} {{fields.authors[0] | ternary(' • ', '')}} {{fields.authors[0] | ternary(fields.authors[0], '')}}"
+    create: true
+    fields:
+      - {label: "Title", name: "ceoTitle", widget: "string", required: false}
+      - {label: "Name (H1)", name: "title", widget: "string"}
+      - {label: "Breadcrumbs", name: "breadcrumbs", widget: "string", required: false}
+      - {label: "Slug", name: "slug", widget: "string", required: false}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Publish Date", name: "publishDate", widget: "datetime", default: ""}
+      - {label: "Image", name: "image", widget: "image", required: false}
+      - {label: "Og Image", name: "og_image", widget: "image", required: false}
+      - {label: "Description", name: "description", widget: "text"}
+
+      - label: "Promote post"
+        name: "promote"
+        widget: "object"
+        fields:
+          - {label: "Promote", name: "promote", widget: "boolean", required: false, default: false}
+          - {label: "Promote Url", name: "promote_url", widget: "string", required: false}
+
+      - {label: "Top", name: "top", widget: "boolean", required: false, default: false}
+
+      - label: Authors
+        name: authors
+        widget: relation
+        collection: "authors"
+        required: false
+        multiple: true
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{slug}}"
+
+      - label: "Categories"
+        name: "categories"
+        widget: "relation"
+        collection: "categories"
+        required: false
+        multiple: true
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{slug}}"
+
+      - label: "Industries"
+        name: "industries"
+        widget: "relation"
+        collection: "industries"
+        required: false
+        multiple: true
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{slug}}"
+      - {label: "Body", name: "body", widget: "markdown"}
+
+      - label: "Questionary"
+        name: "questionary"
+        widget: "list"
+        fields:
+          - {label: Question, name: question, widget: text, required: false}
+          - {label: Answer, name: answer, widget: text, required: false}
+    sortable_fields: ["title", "publishDate", "top", "promote.promote", "draft"]
+
+  - label: "Authors"
+    label_singular: "Author"
+    identifier_field: name
+    name: "authors"
+    folder: "data/authors"
+    path: "{{slug}}"
+    extension: 'json'
+    create: true
+    editor:
+      preview: false
+    fields:
+      - {label: "Team", name: "team", widget: "boolean", default: false}
+      - {label: "Title", name: "title", widget: "string"}
+      - label: "Avatar"
+        name: "avatar"
+        widget: "image"
+        required: false
+        default: '/img/default-avatar-icon.svg'
+        media_folder: "/assets/img/avatars"
+        public_folder: "/img/avatars"
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Position", name: "position", widget: "string", required: false}
+    sortable_fields: ["name"]
+
+  - label: "Sales"
+    label_singular: "Sale"
+    identifier_field: name
+    name: "sales"
+    folder: "data/sales"
+    path: "{{slug}}"
+    extension: 'json'
+    create: true
+    editor:
+      preview: false
+    fields:
+      - {label: "Name", name: "name", widget: "string"}
+      - label: "Avatar"
+        name: "avatar"
+        widget: "image"
+        required: false
+        default: '/img/default-avatar-icon.svg'
+        media_folder: "/assets/img/avatars"
+        public_folder: "/img/avatars"
+      - {label: "Link", name: "link", widget: "string", }
+
+  - label: "Categories"
+    label_singular: "Category"
+    identifier_field: name
+    name: "categories"
+    folder: "data/categories"
+    path: "{{slug}}"
+    extension: 'json'
+    create: true
+    editor:
+      preview: false
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+    sortable_fields: ["title"]
+
+  - label: "Industries"
+    label_singular: "Industry"
+    identifier_field: name
+    name: "industries"
+    folder: "data/industries"
+    path: "{{slug}}"
+    extension: 'json'
+    create: true
+    editor:
+      preview: false
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - label: Sale
+        name: sale
+        widget: relation
+        collection: "sales"
+        default: "Irina Lysenko"
+        multiple: false
+        search_fields: ["name"]
+        display_fields: ["name"]
+        value_field: "name"
+    sortable_fields: ["title"]
+
+  - name: "site_settings"
+    label: "Site Settings"
+    files:
+      - file: "config/_default/params.yml"
+        label: Hugo Params
+        name: config
+        editor:
+          preview: false
+        fields:
+          - {label: "Indexing", name: "indexing", widget: "boolean"}
